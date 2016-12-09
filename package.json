@@ -1,0 +1,22 @@
+{
+  "name": "nmessage-center",
+  "version": "1.0.0",
+  "description": "Message Center",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanyuantingfeng/nmessage-center.git"
+  },
+  "keywords": [
+    "message",
+    "center"
+  ],
+  "author": "nanyuantingfeng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nanyuantingfeng/nmessage-center/issues"
+  },
+  "homepage": "https://github.com/nanyuantingfeng/nmessage-center#readme"
+}
