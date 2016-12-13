@@ -1,8 +1,8 @@
 {
   "name": "nmessage-center",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Message Center",
-  "main": "index.js",
+  "main": "lib/MessageCenter.js",
   "scripts": {
   },
   "repository": {
