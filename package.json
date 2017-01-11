@@ -1,9 +1,10 @@
 {
   "name": "nmessage-center",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Message Center",
   "main": "lib/MessageCenter.js",
   "scripts": {
+    "build": "babel ./src/ -d ./lib"
   },
   "repository": {
     "type": "git",
