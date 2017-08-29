@@ -13,7 +13,9 @@ export default class MessageCenter {
 
   clear (): this
 
-  listenersNumber (name: string): number;
+  listenersLength (name: string): number;
+
+  length (name: string): number;
 
   watch (name: string, handler: (...args) => any, ...args): this
 

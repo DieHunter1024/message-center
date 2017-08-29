@@ -18,7 +18,7 @@ function fnGetHandlerIndex (name, handler) {
 }
 
 function fnAchieveMaxListener (name) {
-  return (this._maxListeners !== null && this._maxListeners <= this.listenersNumber(name))
+  return (this._maxListeners !== null && this._maxListeners <= this.listenersLength(name))
 }
 
 function fnHandlerIsExists (name, handler, context) {
@@ -197,8 +197,12 @@ export default class MessageCenter {
    * @param name
    * @returns {number}
    */
-  listenersNumber (name) {
+  listenersLength (name) {
     return this::fnHas(name) ? this._handlers[name].length : 0
+  }
+
+  length (name) {
+    return this.listenersLength(name)
   }
 
   /*********************************
@@ -225,7 +229,7 @@ export default class MessageCenter {
    */
   invoke (name, ...args) {
     let {promise, resolve, reject} = Defer()
-    if (!this.listenersNumber(name)) {
+    if (!this.listenersLength(name)) {
       reject(`have no watcher at event(${name})`)
     } else {
       this.once(fnPrefixEventName(name), resolve)
