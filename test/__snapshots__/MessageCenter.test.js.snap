@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`clear 1`] = `
+Object {
+  "kkk": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk2": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk3": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk4": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+}
+`;
+
+exports[`test clear 1`] = `
+Object {
+  "kkk": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk2": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk3": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+  "kkk4": Array [
+    Object {
+      "context": null,
+      "handler": [Function],
+      "weight": 1,
+    },
+  ],
+}
+`;

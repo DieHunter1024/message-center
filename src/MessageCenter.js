@@ -1,54 +1,54 @@
 /**************************************************
  * Created by nanyuantingfeng on 20/12/2016 14:51.
  **************************************************/
-function fnAddHandler (eName, handler, context, weight) {
-  this::fnGetHandlers(eName).push({handler, context, weight})
-  this::fnGetHandlers(eName).sort((a, b) => b.weight - a.weight)
+function fnAddHandler (name, handler, context, weight) {
+  this::fnGetHandlers(name).push({handler, context, weight})
+  this::fnGetHandlers(name).sort((a, b) => b.weight - a.weight)
   return this
 }
 
-function fnGetHandlers (eName) {
-  return this._handlers[eName]
+function fnGetHandlers (name) {
+  return this._handlers[name]
 }
 
-function fnGetHandlerIndex (eName, handler) {
-  return this::fnHas(eName)
-    ? this::fnGetHandlers(eName).findIndex(element => element.handler === handler)
+function fnGetHandlerIndex (name, handler) {
+  return this::fnHas(name)
+    ? this::fnGetHandlers(name).findIndex(element => element.handler === handler)
     : -1
 }
 
-function fnAchieveMaxListener (eName) {
-  return (this._maxListeners !== null && this._maxListeners <= this.listenersNumber(eName))
+function fnAchieveMaxListener (name) {
+  return (this._maxListeners !== null && this._maxListeners <= this.listenersNumber(name))
 }
 
-function fnHandlerIsExists (eName, handler, context) {
-  const handlerInd = this::fnGetHandlerIndex(eName, handler)
-  const activeHandler = handlerInd !== -1 ? this::fnGetHandlers(eName)[handlerInd] : void 0
+function fnHandlerIsExists (name, handler, context) {
+  const handlerInd = this::fnGetHandlerIndex(name, handler)
+  const activeHandler = handlerInd !== -1 ? this::fnGetHandlers(name)[handlerInd] : void 0
   return (handlerInd !== -1 && activeHandler && activeHandler.context === context)
 }
 
-function fnHas (eName) {
-  return !!this._events[eName]
+function fnHas (name) {
+  return !!this._events[name]
 }
 
-function fnOn (eName, handler, context = null, weight = 1) {
+function fnOn (name, handler, context = null, weight = 1) {
 
   if (typeof handler !== 'function') {
     throw new TypeError(`${handler} is not a function`)
   }
 
-  if (!this::fnHas(eName)) {
-    this._events[eName] = eName
-    this._handlers[eName] = []
+  if (!this::fnHas(name)) {
+    this._events[name] = name
+    this._handlers[name] = []
   } else {
     // Check if we reached maximum number of listeners.
-    if (this::fnAchieveMaxListener(eName)) {
-      this._console.warn(`Max listeners (${this._maxListeners}) for event "${eName}" is reached!`)
+    if (this::fnAchieveMaxListener(name)) {
+      this._console.warn(`Max listeners (${this._maxListeners}) for event "${name}" is reached!`)
     }
 
     // Check if the same handler has already added.
     if (this::fnHandlerIsExists(...arguments)) {
-      this._console.warn(`Event "${eName}" already has the handler ${handler}.`)
+      this._console.warn(`Event "${name}" already has the handler ${handler}.`)
     }
   }
 
@@ -56,18 +56,18 @@ function fnOn (eName, handler, context = null, weight = 1) {
   return this
 }
 
-function fnUn (eName, handler = null) {
+function fnUn (name, handler = null) {
   let handlerInd
-  if (this::fnHas(eName)) {
+  if (this::fnHas(name)) {
     if (handler === null) {
-      this._events[eName] = undefined
-      delete this._events[eName]
-      this._handlers[eName] = null
+      this._events[name] = undefined
+      delete this._events[name]
+      this._handlers[name] = null
     } else {
       handler = this::fnGetHandlerInMap(handler)
-      handlerInd = this::fnGetHandlerIndex(eName, handler)
+      handlerInd = this::fnGetHandlerIndex(name, handler)
       if (handlerInd !== -1) {
-        this::fnGetHandlers(eName).splice(handlerInd, 1)
+        this::fnGetHandlers(name).splice(handlerInd, 1)
         this::fnUn(...arguments)
       }
     }
@@ -75,8 +75,8 @@ function fnUn (eName, handler = null) {
   return this
 }
 
-function fnEmit (eName) {
-  const custom = this._handlers[eName]
+function fnEmit (name) {
+  const custom = this._handlers[name]
   let i = custom ? custom.length : 0
   let len = arguments.length
   let args
@@ -106,8 +106,8 @@ function fnGetHandlerInMap (handler) {
   return this._watchHandlersMap.get(handler) || handler
 }
 
-function fnPrefixEventName (eName) {
-  return `@@A0F2F71915C05BE72D17F48B2A49CEAD:${eName}`
+function fnPrefixEventName (name) {
+  return `@@A0F2F71915C05BE72D17F48B2A49CEAD:${name}`
 }
 
 function Defer () {
@@ -133,52 +133,52 @@ export default class MessageCenter {
 
   /*******************************************
    * 注册监听器("aaa|bbb|ccc")
-   * @param eName
+   * @param name
    * @param handler
    * @param context
    * @param weight
    * @returns {MessageCenter}
    */
-  on (eName, handler, context = null, weight = 1) {
-    eName.split('|').forEach(e => e && this::fnOn(e, handler, context, weight))
+  on (name, handler, context = null, weight = 1) {
+    name.split('|').forEach(e => e && this::fnOn(e, handler, context, weight))
     return this
   }
 
   /*********************************************
    * 单次监听
-   * @param eName
+   * @param name
    * @param handler
    * @param context
    * @param weight
    * @returns {MessageCenter}
    */
-  once (eName, handler, context = null, weight = 1) {
+  once (name, handler, context = null, weight = 1) {
     let fn = (...args) => {
-      this.un(eName, fn)
+      this.un(name, fn)
       return handler.apply(context, args)
     }
-    return this.on(eName, fn, context, weight)
+    return this.on(name, fn, context, weight)
   }
 
   /*********************************************
    * 解除监听
-   * @param eName
+   * @param name
    * @param args
    * @returns {MessageCenter}
    */
-  un (eName, ...args) {
-    eName.split('|').forEach(e => e && this::fnUn(e, ...args))
+  un (name, ...args) {
+    name.split('|').forEach(e => e && this::fnUn(e, ...args))
     return this
   }
 
   /**********************************************
    * 触发监听
-   * @param eName
+   * @param name
    * @param args
    * @returns {MessageCenter}
    */
-  emit (eName, ...args) {
-    eName.split('|').forEach(e => e && this::fnEmit(e, ...args))
+  emit (name, ...args) {
+    name.split('|').forEach(e => e && this::fnEmit(e, ...args))
     return this
   }
 
@@ -194,11 +194,11 @@ export default class MessageCenter {
 
   /****************************************
    * 检测监听器的长度
-   * @param eventName
+   * @param name
    * @returns {number}
    */
-  listenersNumber (eventName) {
-    return this::fnHas(eventName) ? this._handlers[eventName].length : 0
+  listenersNumber (name) {
+    return this::fnHas(name) ? this._handlers[name].length : 0
   }
 
   /*********************************
