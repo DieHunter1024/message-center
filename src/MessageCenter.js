@@ -1,117 +1,134 @@
 /**************************************************
  * Created by nanyuantingfeng on 20/12/2016 14:51.
  **************************************************/
-class MessageCenter {
+function fnAddHandler (eName, handler, context, weight) {
+  this::fnGetHandlers(eName).push({handler, context, weight})
+  this::fnGetHandlers(eName).sort((a, b) => b.weight - a.weight)
+  return this
+}
 
-  constructor(maxListeners = null, localConsole = console) {
-    this._handlers = {};
-    this._events = {}
-    this._console = localConsole;
-    this._maxListeners = maxListeners === null ? null : parseInt(maxListeners, 10);
-    return this;
+function fnGetHandlers (eName) {
+  return this._handlers[eName]
+}
+
+function fnGetHandlerIndex (eName, handler) {
+  return this::fnHas(eName)
+    ? this::fnGetHandlers(eName).findIndex(element => element.handler === handler)
+    : -1
+}
+
+function fnAchieveMaxListener (eName) {
+  return (this._maxListeners !== null && this._maxListeners <= this.listenersNumber(eName))
+}
+
+function fnHandlerIsExists (eName, handler, context) {
+  const handlerInd = this::fnGetHandlerIndex(eName, handler)
+  const activeHandler = handlerInd !== -1 ? this::fnGetHandlers(eName)[handlerInd] : void 0
+  return (handlerInd !== -1 && activeHandler && activeHandler.context === context)
+}
+
+function fnHas (eName) {
+  return !!this._events[eName]
+}
+
+function fnOn (eName, handler, context = null, weight = 1) {
+
+  if (typeof handler !== 'function') {
+    throw new TypeError(`${handler} is not a function`)
   }
 
-  _addHandler(eName, handler, context, weight) {
-    this._getHandlers(eName).push({ handler, context, weight });
-    this._getHandlers(eName).sort((a, b) => b.weight - a.weight);
-    return this;
-  }
-
-  _getHandlers(eName) {
-    return this._handlers[eName];
-  }
-
-  _getHandlerIndex(eName, handler) {
-    return this._has(eName)
-      ? this._getHandlers(eName).findIndex(element => element.handler === handler)
-      : -1;
-  }
-
-  _achieveMaxListener(eName) {
-    const self = this;
-    return (self._maxListeners !== null && self._maxListeners <= this.listenersNumber(eName));
-  }
-
-  _handlerIsExists(eName, handler, context) {
-    const handlerInd = this._getHandlerIndex(eName, handler);
-    const activeHandler = handlerInd !== -1 ?
-      this._getHandlers(eName)[handlerInd] : void 0;
-
-    return (handlerInd !== -1 && activeHandler && activeHandler.context === context);
-  }
-
-  _has(eName) {
-    return !!this._events[eName]
-  }
-
-  _on(eName, handler, context = null, weight = 1) {
-    const self = this;
-
-    if (typeof handler !== 'function') {
-      throw new TypeError(`${handler} is not a function`);
+  if (!this::fnHas(eName)) {
+    this._events[eName] = eName
+    this._handlers[eName] = []
+  } else {
+    // Check if we reached maximum number of listeners.
+    if (this::fnAchieveMaxListener(eName)) {
+      this._console.warn(`Max listeners (${this._maxListeners}) for event "${eName}" is reached!`)
     }
 
-    // If event wasn't added before - just add it
-    // and define handlers as an empty object.
-    if (!this._has(eName)) {
-      self._events[eName] = eName;
-      self._handlers[eName] = [];
+    // Check if the same handler has already added.
+    if (this::fnHandlerIsExists(...arguments)) {
+      this._console.warn(`Event "${eName}" already has the handler ${handler}.`)
+    }
+  }
+
+  this::fnAddHandler(...arguments)
+  return this
+}
+
+function fnUn (eName, handler = null) {
+  let handlerInd
+  if (this::fnHas(eName)) {
+    if (handler === null) {
+      this._events[eName] = undefined
+      delete this._events[eName]
+      this._handlers[eName] = null
     } else {
-      // Check if we reached maximum number of listeners.
-      if (this._achieveMaxListener(eName)) {
-        self._console.warn(`Max listeners (${self._maxListeners}) for event "${eName}" is reached!`);
-      }
-
-      // Check if the same handler has already added.
-      if (this._handlerIsExists(...arguments)) {
-        self._console.warn(`Event "${eName}" already has the handler ${handler}.`);
+      handler = this::fnGetHandlerInMap(handler)
+      handlerInd = this::fnGetHandlerIndex(eName, handler)
+      if (handlerInd !== -1) {
+        this::fnGetHandlers(eName).splice(handlerInd, 1)
+        this::fnUn(...arguments)
       }
     }
+  }
+  return this
+}
 
-    this._addHandler(...arguments);
-    return this;
+function fnEmit (eName) {
+  const custom = this._handlers[eName]
+  let i = custom ? custom.length : 0
+  let len = arguments.length
+  let args
+  let current
+
+  if (i > 0 && len > 1) {
+    args = [].slice.call(arguments, 1)
   }
 
-  _un(eName, handler = null) {
-    const self = this;
-    let handlerInd;
-    if (this._has(eName)) {
-      if (handler === null) {
-        self._events[eName] = undefined;
-        delete self._events[eName]
-        self._handlers[eName] = null;
-      } else {
-        handlerInd = this._getHandlerIndex(eName, handler);
-        if (handlerInd !== -1) {
-          this._getHandlers(eName).splice(handlerInd, 1);
-          this._un(...arguments);
-        }
-      }
+  while (i--) {
+    current = custom[i]
+    if (arguments.length > 1) {
+      current.handler.apply(current.context, args)
+    } else {
+      current.handler.apply(current.context)
     }
-    return this;
   }
+  args = null
+  return this
+}
 
-  _emit(eName) {
-    const custom = this._handlers[eName];
-    let i = custom ? custom.length : 0;
-    let len = arguments.length;
-    let args;
-    let current;
+function fnSetHandlerInMap (handler, realHandler) {
+  this._watchHandlersMap.set(handler, realHandler)
+}
 
-    if (i > 0 && len > 1) {
-      args = [].slice.call(arguments, 1)
-    }
+function fnGetHandlerInMap (handler) {
+  return this._watchHandlersMap.get(handler) || handler
+}
 
-    while (i--) {
-      current = custom[i];
-      if (arguments.length > 1) {
-        current.handler.apply(current.context, args);
-      } else {
-        current.handler.apply(current.context);
-      }
-    }
-    args = null;
-    return this;
+function fnPrefixEventName (eName) {
+  return `@@A0F2F71915C05BE72D17F48B2A49CEAD:${eName}`
+}
+
+function Defer () {
+  let resolve = undefined
+  let reject = undefined
+  let promise = new Promise((a, b) => {
+    resolve = a
+    reject = b
+  })
+  return {promise, resolve, reject}
+}
+
+export default class MessageCenter {
+
+  constructor (maxListeners = null, localConsole = console) {
+    this._handlers = {}
+    this._events = {}
+    this._console = localConsole
+    this._maxListeners = maxListeners === null ? null : parseInt(maxListeners, 10)
+    this._watchHandlersMap = new WeakMap()
+    return this
   }
 
   /*******************************************
@@ -122,9 +139,9 @@ class MessageCenter {
    * @param weight
    * @returns {MessageCenter}
    */
-  on(eName, handler, context = null, weight = 1) {
-    eName.split("|").forEach(e => e && this._on.call(this, e, handler, context, weight));
-    return this;
+  on (eName, handler, context = null, weight = 1) {
+    eName.split('|').forEach(e => e && this::fnOn(e, handler, context, weight))
+    return this
   }
 
   /*********************************************
@@ -135,12 +152,12 @@ class MessageCenter {
    * @param weight
    * @returns {MessageCenter}
    */
-  once(eName, handler, context = null, weight = 1) {
-    const fn = (...args) => {
-      this.un(eName, fn);
-      return handler.apply(context, args);
-    };
-    return this.on(eName, fn, context, weight);
+  once (eName, handler, context = null, weight = 1) {
+    let fn = (...args) => {
+      this.un(eName, fn)
+      return handler.apply(context, args)
+    }
+    return this.on(eName, fn, context, weight)
   }
 
   /*********************************************
@@ -149,9 +166,9 @@ class MessageCenter {
    * @param args
    * @returns {MessageCenter}
    */
-  un(eName, ...args) {
-    eName.split("|").forEach(e => e && this._un.call(this, e, ...args));
-    return this;
+  un (eName, ...args) {
+    eName.split('|').forEach(e => e && this::fnUn(e, ...args))
+    return this
   }
 
   /**********************************************
@@ -160,19 +177,19 @@ class MessageCenter {
    * @param args
    * @returns {MessageCenter}
    */
-  emit(eName, ...args) {
-    eName.split("|").forEach(e => e && this._emit.call(this, e, ...args));
-    return this;
+  emit (eName, ...args) {
+    eName.split('|').forEach(e => e && this::fnEmit(e, ...args))
+    return this
   }
 
   /******************************************
    * 清空当前实例中所有的监听
    * @returns {MessageCenter}
    */
-  clear() {
-    this._events = {};
-    this._handlers = {};
-    return this;
+  clear () {
+    this._events = {}
+    this._handlers = {}
+    return this
   }
 
   /****************************************
@@ -180,9 +197,40 @@ class MessageCenter {
    * @param eventName
    * @returns {number}
    */
-  listenersNumber(eventName) {
-    return this._has(eventName) ? this._handlers[eventName].length : 0;
+  listenersNumber (eventName) {
+    return this::fnHas(eventName) ? this._handlers[eventName].length : 0
+  }
+
+  /*********************************
+   * 等待结果返回
+   * @param name
+   * @param handler
+   * @param args
+   * @returns {MessageCenter}
+   */
+  watch (name, handler, ...args) {
+    let fn = (...data) => {
+      this.emit(fnPrefixEventName(name), handler(...data))
+    }
+    this.on(name, fn, ...args)
+    this::fnSetHandlerInMap(handler, fn)
+    return this
+  }
+
+  /*************************
+   * 触发结果返回
+   * @param name
+   * @param args
+   * @returns {Promise}
+   */
+  invoke (name, ...args) {
+    let {promise, resolve, reject} = Defer()
+    if (!this.listenersNumber(name)) {
+      reject(`have no watcher at event(${name})`)
+    } else {
+      this.once(fnPrefixEventName(name), resolve)
+      this.emit(name, ...args)
+    }
+    return promise
   }
 }
-
-module.exports = MessageCenter;
