@@ -26,7 +26,7 @@ messageCenter.un('aaa')
 
 #API
 
-###on(eventName, handler, context?, weight?)
+### on(eventName, handler, context?, weight?)
 > 为指定事件注册一个监听器，接受一个字符串 eventName 和一个 回调函数。
 ```javascript
 
@@ -50,27 +50,27 @@ messageCenter.on('aaa|bbb|ccc', () => {
 
 ```
  
-###once(eventName, handler, context?, weight?)
+### once(eventName, handler, context?, weight?)
 > 为指定事件注册一个单次监听器,监听器最多只会触发一次,触发后立刻解除该监听器。
  
 
-###emit(eventName, ...args)  
+### emit(eventName, ...args)  
 > 按参数的顺序执行每个监听器
 
-###un(eventName, handler?)
+### un(eventName, handler?)
 > 解除监听器 如没有传入handler,将会解除eventName名下所有监听器
 
-###clear()
+### clear()
 > 重置 messageCenter
 
-###listenersCount(eventName) 
+### listenersCount(eventName) 
 > 计算监听器的数量
 
-###watch(eventName, handler, ...args)
+### watch(eventName, handler, ...args)
 > 与invoke方法一起使用, 能够返回watch方法的handler可以收到invoke方法的计算结果
 > 同时invoke也能够收到watch方法的返回结果
  
-###invoke(eventName, ...args)
+### invoke(eventName, ...args)
 
 ```javascript
     const messageCenter = new MessageCenter()
