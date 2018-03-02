@@ -24,7 +24,7 @@ messageCenter.un('aaa')
 
 ```
 
-#API
+# API
 
 ### on(eventName, handler, context?, weight?)
 > 为指定事件注册一个监听器，接受一个字符串 eventName 和一个 回调函数。
