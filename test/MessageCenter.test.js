@@ -50,7 +50,10 @@ test('test watch/invoke  0', async () => {
 
   bus.un('kkk', fff)
 
-  expect(bus._handlers).toEqual({kkk: [], '@@A0F2F71915C05BE72D17F48B2A49CEAD:kkk': []})
+  expect(bus._handlers).toEqual({
+    kkk: [],
+    '@@A0F2F71915C05BE72D17F48B2A49CEAD:kkk': []
+  })
 })
 
 test('test watch/invoke  1', async () => {

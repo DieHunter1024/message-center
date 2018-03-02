@@ -1,37 +1,37 @@
 /**************************************************
  * Created by nanyuantingfeng on 20/12/2016 14:51.
  **************************************************/
-function fnAddHandler (name, handler, context, weight) {
+function fnAddHandler(name, handler, context, weight) {
   this::fnGetHandlers(name).push({handler, context, weight})
   this::fnGetHandlers(name).sort((a, b) => b.weight - a.weight)
   return this
 }
 
-function fnGetHandlers (name) {
+function fnGetHandlers(name) {
   return this._handlers[name]
 }
 
-function fnGetHandlerIndex (name, handler) {
+function fnGetHandlerIndex(name, handler) {
   return this::fnHas(name)
     ? this::fnGetHandlers(name).findIndex(element => element.handler === handler)
     : -1
 }
 
-function fnAchieveMaxListener (name) {
+function fnAchieveMaxListener(name) {
   return (this._maxListeners !== null && this._maxListeners <= this.listenersLength(name))
 }
 
-function fnHandlerIsExists (name, handler, context) {
+function fnHandlerIsExists(name, handler, context) {
   const handlerInd = this::fnGetHandlerIndex(name, handler)
   const activeHandler = handlerInd !== -1 ? this::fnGetHandlers(name)[handlerInd] : void 0
   return (handlerInd !== -1 && activeHandler && activeHandler.context === context)
 }
 
-function fnHas (name) {
+function fnHas(name) {
   return !!this._events[name]
 }
 
-function fnOn (name, handler, context = null, weight = 1) {
+function fnOn(name, handler, context = null, weight = 1) {
 
   if (typeof handler !== 'function') {
     throw new TypeError(`${handler} is not a function`)
@@ -56,7 +56,7 @@ function fnOn (name, handler, context = null, weight = 1) {
   return this
 }
 
-function fnUn (name, handler = null) {
+function fnUn(name, handler = null) {
   let handlerInd
   if (this::fnHas(name)) {
     if (handler === null) {
@@ -75,7 +75,7 @@ function fnUn (name, handler = null) {
   return this
 }
 
-function fnEmit (name) {
+function fnEmit(name) {
   const custom = this._handlers[name]
   let i = custom ? custom.length : 0
   let len = arguments.length
@@ -98,19 +98,19 @@ function fnEmit (name) {
   return this
 }
 
-function fnSetHandlerInMap (handler, realHandler) {
+function fnSetHandlerInMap(handler, realHandler) {
   this._watchHandlersMap.set(handler, realHandler)
 }
 
-function fnGetHandlerInMap (handler) {
+function fnGetHandlerInMap(handler) {
   return this._watchHandlersMap.get(handler) || handler
 }
 
-function fnPrefixEventName (name) {
+function fnPrefixEventName(name) {
   return `@@A0F2F71915C05BE72D17F48B2A49CEAD:${name}`
 }
 
-function Defer () {
+function Defer() {
   let resolve = undefined
   let reject = undefined
   let promise = new Promise((a, b) => {
@@ -122,7 +122,7 @@ function Defer () {
 
 export default class MessageCenter {
 
-  constructor (maxListeners = null, localConsole = console) {
+  constructor(maxListeners = null, localConsole = console) {
     this._handlers = {}
     this._events = {}
     this._console = localConsole
@@ -139,7 +139,7 @@ export default class MessageCenter {
    * @param weight
    * @returns {MessageCenter}
    */
-  on (name, handler, context = null, weight = 1) {
+  on(name, handler, context = null, weight = 1) {
     name.split('|').forEach(e => e && this::fnOn(e, handler, context, weight))
     return this
   }
@@ -152,7 +152,7 @@ export default class MessageCenter {
    * @param weight
    * @returns {MessageCenter}
    */
-  once (name, handler, context = null, weight = 1) {
+  once(name, handler, context = null, weight = 1) {
     let fn = (...args) => {
       this.un(name, fn)
       return handler.apply(context, args)
@@ -166,7 +166,7 @@ export default class MessageCenter {
    * @param args
    * @returns {MessageCenter}
    */
-  un (name, ...args) {
+  un(name, ...args) {
     name.split('|').forEach(e => e && this::fnUn(e, ...args))
     return this
   }
@@ -177,7 +177,7 @@ export default class MessageCenter {
    * @param args
    * @returns {MessageCenter}
    */
-  emit (name, ...args) {
+  emit(name, ...args) {
     name.split('|').forEach(e => e && this::fnEmit(e, ...args))
     return this
   }
@@ -186,7 +186,7 @@ export default class MessageCenter {
    * 清空当前实例中所有的监听
    * @returns {MessageCenter}
    */
-  clear () {
+  clear() {
     this._events = {}
     this._handlers = {}
     return this
@@ -197,12 +197,8 @@ export default class MessageCenter {
    * @param name
    * @returns {number}
    */
-  listenersLength (name) {
+  listenersCount(name) {
     return this::fnHas(name) ? this._handlers[name].length : 0
-  }
-
-  length (name) {
-    return this.listenersLength(name)
   }
 
   /*********************************
@@ -212,7 +208,7 @@ export default class MessageCenter {
    * @param args
    * @returns {MessageCenter}
    */
-  watch (name, handler, ...args) {
+  watch(name, handler, ...args) {
     let fn = (...data) => {
       this.emit(fnPrefixEventName(name), handler(...data))
     }
@@ -227,7 +223,7 @@ export default class MessageCenter {
    * @param args
    * @returns {Promise}
    */
-  invoke (name, ...args) {
+  invoke(name, ...args) {
     let {promise, resolve, reject} = Defer()
     if (!this.listenersLength(name)) {
       reject(`have no watcher at event(${name})`)
