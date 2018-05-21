@@ -63,7 +63,7 @@ messageCenter.on('aaa|bbb|ccc', () => {
 ### clear()
 > 重置 messageCenter
 
-### listenersCount(eventName) 
+### listenersLength(eventName) 
 > 计算监听器的数量
 
 ### watch(eventName, handler, ...args)

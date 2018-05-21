@@ -1,6 +1,6 @@
 {
   "name": "message-center.js",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "MessageCenter",
   "main": "lib/MessageCenter.js",
   "typings": "index.d.ts",

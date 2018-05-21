@@ -197,7 +197,7 @@ export default class MessageCenter {
    * @param name
    * @returns {number}
    */
-  listenersCount(name) {
+  listenersLength(name) {
     return this::fnHas(name) ? this._handlers[name].length : 0
   }
 
