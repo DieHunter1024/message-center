@@ -106,3 +106,4 @@ fabric.properties
 
 .idea
 lib/
+src/__tests__/__snapshots__/

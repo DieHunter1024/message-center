@@ -1,15 +1,20 @@
 {
   "name": "message-center.js",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "MessageCenter",
   "main": "lib/MessageCenter.js",
-  "typings": "index.d.ts",
+  "types": "lib/MessageCenter.d.ts",
   "scripts": {
-    "build": "mkdir -p lib && babel ./src -d ./lib",
-    "copy": "mkdir -p build && cp -R src lib package.json index.d.ts README.md build",
-    "publish2npm": "npm run build && npm run copy && npm publish ./build",
-    "clean": "rm -rf ./lib",
-    "test": "jest"
+    "test": "tape test/*.js",
+    "build": "npm run tsc:build && npm run optimize",
+    "tsc:build": "rm -fr dist && tsc -p tsconfig.esm.json && cp -R dist/esm dist/lib",
+    "optimize": "npm run babel:cjs & npm run babel:mjs",
+    "babel:cjs": "babel dist/lib --out-dir dist/lib --plugins=lodash,transform-es2015-modules-commonjs",
+    "babel:mjs": "babel dist/esm --out-dir dist/esm --plugins=lodash",
+    "test:start": "jest -o --watch",
+    "publish2npm": "npm run lint && npm run build && cp package.json README.md dist && npm publish dist",
+    "codecov": "codecov",
+    "lint": "tslint 'src/**/*.ts' && npm test"
   },
   "repository": {
     "type": "git",
@@ -22,16 +27,36 @@
     "message-center"
   ],
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-function-bind": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
-    "jest": "^22.4.2"
+    "@types/jest": "^22.2.3",
+    "jest": "^22.4.4",
+    "ts-jest": "^22.4.6",
+    "hollow-cli": "^1.1.0-beta.8"
   },
   "author": "nanyuantingfeng",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/nanyuantingfeng/nmessage-center/issues"
   },
-  "homepage": "https://github.com/nanyuantingfeng/nmessage-center#readme"
+  "homepage": "https://github.com/nanyuantingfeng/nmessage-center#readme",
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.test.{ts,tsx,js,jsx}"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/fixtures/"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest"
+    },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/__tests__/",
+      "/dist/"
+    ]
+  }
 }
